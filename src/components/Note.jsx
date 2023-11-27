@@ -18,14 +18,14 @@ const Note = ({ note }) => {
       <p className="text-sm">{content.slice(0, 120)}</p>
       <div className="flex items-center justify-between mt-2 border-t pt-2">
         <p className="text-sm font-medium">
-        Published At {formattedDate}
+        {formattedDate}
         </p>
         <div className="flex items-center justify-end gap-2">
           <TrashIcon width={20} className="text-red-600" />
-          <Link to={"/edit/1"}>
+          <Link to={"/edit/" + _id}>
             <PencilSquareIcon width={20} className="text-green-600" />
           </Link>
-          <Link to={"/note/1"}>
+          <Link to={"/note/" + _id}>
             <EyeIcon width={20} className="text-blue-600" />
           </Link>
         </div>
