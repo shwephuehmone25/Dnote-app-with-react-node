@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import Note from "../components/Note";
-import Plus from "../components/Plus";
 import { Hearts } from "react-loader-spinner";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -37,7 +36,7 @@ const Index = () => {
   };
 
   return (
-    <section className="flex gap-6 px-10 mt-10 flex-wrap">
+    <section className="flex gap-6 px-10 mt-10 flex-wrap w-full justify-center">
       {!loading && notes.length > 0 ? (
         <>
           {notes.map((note) => (
@@ -74,7 +73,6 @@ const Index = () => {
         pauseOnHover
         theme="light"
       />
-      <Plus />
     </section>
   );
 };

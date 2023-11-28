@@ -39,7 +39,7 @@ const Details = () => {
           />
         </div>
       ) : (
-        <section className="px-10 mt-10">
+        <section className="px-10 mt-10 ">
           <div className="text-right">
             <Link
               to={"/"}
