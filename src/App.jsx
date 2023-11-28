@@ -22,7 +22,7 @@ const App = () => {
           element: <Create />,
         },
         {
-          path: "/edit/:id",
+          path: "/edit/note/:id",
           element: <Edit />,
         },
         {

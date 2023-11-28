@@ -1,5 +1,5 @@
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { Formik, Field, Form } from "formik";
 
 import * as Yup from "yup";
@@ -8,16 +8,48 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import CustomErrorMessage from "./CustomErrorMessage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 /**formik custom error message*/
 const NoteForm = ({ isCreate }) => {
   const [redirect, setRedirect] = useState(false);
+  const [oldNote, setOldNote] = useState({});
+  const { id } = useParams();
 
-  const initialValues = {
-    title: "",
-    content: "",
+  const getOldNote = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API}/edit/${id}`);
+      if (response.ok) {
+        const note = await response.json();
+        setOldNote(note);
+      } else {
+        setRedirect(true);
+      }
+    } catch (error) {
+      console.error("Error fetching old note:", error);
+      // Handle the error, e.g., display an error message to the user
+    }
   };
+
+  useEffect((_) => {
+    if (!isCreate) {
+      getOldNote();
+    }
+  }, [isCreate, id]);
+
+  /**for create*/
+  // const initialValues = {
+  //   title: "",
+  //   content: "",
+  // };
+
+  /**for create & update*/
+  const initialValues = {
+    title: isCreate ? "" : oldNote.title || "",
+    content: isCreate ? "" : oldNote.content || "",
+    note_id: isCreate ? "" : oldNote._id || "",
+  };
+
   /**validation with formik validate*/
   // const validate = (values) => {
   //   const errors = {};
@@ -44,16 +76,38 @@ const NoteForm = ({ isCreate }) => {
   });
 
   const submitHandler = async (values) => {
+    let API;
+    let method;
+  
     if (isCreate) {
-      const response = await fetch(`${import.meta.env.VITE_API}/create/note`, {
-        method: "post",
+      API = `${import.meta.env.VITE_API}/create/note`;
+      method = "post";
+    } else {
+      API = `${import.meta.env.VITE_API}/edit/${values.note_id}`;
+      method = "put";
+    }
+  
+    try {
+      const response = await fetch(API, {
+        method,
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(values),
       });
-      if (response.status === 201) {
+  
+      if (response.ok) {
         setRedirect(true);
+        toast.success("Note updated successfully!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       } else {
         toast.error("Something went wrong!", {
           position: "top-right",
@@ -66,8 +120,20 @@ const NoteForm = ({ isCreate }) => {
           theme: "light",
         });
       }
+    } catch (error) {
+      console.error("Error while updating note:", error);
+      toast.error("Something went wrong!", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
-  };
+  };  
 
   if (redirect) {
     return <Navigate to={"/"} />;
@@ -101,6 +167,7 @@ const NoteForm = ({ isCreate }) => {
         initialValues={initialValues}
         validationSchema={NoteFormSchema}
         onSubmit={submitHandler}
+        enableReinitialize={true}
       >
         {({ errors, touched }) => (
           <Form>
@@ -132,11 +199,12 @@ const NoteForm = ({ isCreate }) => {
               />
               <CustomErrorMessage name="content" />
             </div>
+            <Field type="text" name="note_id" id="note_id" hidden />
             <button
-              className="text-white bg-teal-600 py-3 font-medium w-full text-center"
+              className="bg-teal-500 hover:bg-teal-700 text-white py-3 px-4 font-medium rounded-full transition-all duration-300 ease-in-out"
               type="submit"
             >
-              Save
+              {isCreate ? "Save" : "Update"}
             </button>
           </Form>
         )}

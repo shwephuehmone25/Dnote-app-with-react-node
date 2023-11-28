@@ -33,7 +33,7 @@ const Note = ({ note, getAllNotes, customAlert  }) => {
         </p>
         <div className="flex items-center justify-end gap-2">
           <TrashIcon width={20} className="text-red-600 cursor-pointer" onClick={deleteNote} />
-          <Link to={"/edit/" + _id}>
+          <Link to={`edit/note/${_id}`}>
             <PencilSquareIcon width={20} className="text-green-600" />
           </Link>
           <Link to={"/note/" + _id}>
