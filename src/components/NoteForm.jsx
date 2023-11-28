@@ -1,12 +1,19 @@
-import React from "react";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
-import { Link } from "react-router-dom";
-import { Formik, Field, Form, ErrorMessage } from "formik";
-import CustomErrorMessage from "./CustomErrorMessage";
+import { Link, Navigate } from "react-router-dom";
+import { Formik, Field, Form } from "formik";
+
 import * as Yup from "yup";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import CustomErrorMessage from "./CustomErrorMessage";
+import { useState } from "react";
 
 /**formik custom error message*/
 const NoteForm = ({ isCreate }) => {
+  const [redirect, setRedirect] = useState(false);
+
   const initialValues = {
     title: "",
     content: "",
@@ -36,12 +43,52 @@ const NoteForm = ({ isCreate }) => {
       .required("Content is required."),
   });
 
-  const submithandler = (values) => {
-    console.log(values);
+  const submitHandler = async (values) => {
+    if (isCreate) {
+      const response = await fetch(`${import.meta.env.VITE_API}/create/note`, {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+      if (response.status === 201) {
+        setRedirect(true);
+      } else {
+        toast.error("Something went wrong!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }
+    }
   };
+
+  if (redirect) {
+    return <Navigate to={"/"} />;
+  }
 
   return (
     <section>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      {/* Same as */}
+      <ToastContainer />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold mb-5">
           {isCreate ? "Create" : "Edit"}
@@ -50,15 +97,10 @@ const NoteForm = ({ isCreate }) => {
           <ArrowLeftIcon width={22} />
         </Link>
       </div>
-      {/* <Formik
-        initialValues={initialValues}
-        validate={validate}
-        onSubmit={submithandler}
-      > */}
       <Formik
         initialValues={initialValues}
         validationSchema={NoteFormSchema}
-        onSubmit={submithandler}
+        onSubmit={submitHandler}
       >
         {({ errors, touched }) => (
           <Form>
@@ -73,7 +115,6 @@ const NoteForm = ({ isCreate }) => {
                 className="text-lg border-teal-600 border-2 py-1 w-full rounded-lg"
                 placeholder="Enter your title"
               />
-              {/* {errors.title && touched.title && <p>{errors.title}</p>} */}
               <CustomErrorMessage name="title" />
             </div>
             <div className="">
@@ -89,7 +130,6 @@ const NoteForm = ({ isCreate }) => {
                 className="text-lg border-teal-600 border-2 py-1 w-full rounded-lg"
                 placeholder="Enter your content here"
               />
-              {/* {errors.content && touched.content && <p>{errors.content}</p>} */}
               <CustomErrorMessage name="content" />
             </div>
             <button

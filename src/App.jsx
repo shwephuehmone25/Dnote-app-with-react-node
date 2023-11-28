@@ -18,7 +18,7 @@ const App = () => {
           element: <Index />,
         },
         {
-          path: "/create",
+          path: "/create/note",
           element: <Create />,
         },
         {
