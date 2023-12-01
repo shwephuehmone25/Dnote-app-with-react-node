@@ -1,20 +1,18 @@
-import { ArrowLeftIcon } from "@heroicons/react/24/solid";
+import { ArrowLeftIcon, ArrowUpTrayIcon } from "@heroicons/react/24/solid";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { Formik, Field, Form } from "formik";
-
 import * as Yup from "yup";
-
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import CustomErrorMessage from "./CustomErrorMessage";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-/**formik custom error message*/
 const NoteForm = ({ isCreate }) => {
   const [redirect, setRedirect] = useState(false);
   const [oldNote, setOldNote] = useState({});
   const { id } = useParams();
+  const [previewImg, setPreviewImg] = useState(null);
+  const fileRef = useRef();
 
   const getOldNote = async () => {
     try {
@@ -27,11 +25,10 @@ const NoteForm = ({ isCreate }) => {
       }
     } catch (error) {
       console.error("Error fetching old note:", error);
-      // Handle the error, e.g., display an error message to the user
     }
   };
 
-  useEffect((_) => {
+  useEffect(() => {
     if (!isCreate) {
       getOldNote();
     }
@@ -48,6 +45,7 @@ const NoteForm = ({ isCreate }) => {
     title: isCreate ? "" : oldNote.title || "",
     content: isCreate ? "" : oldNote.content || "",
     note_id: isCreate ? "" : oldNote._id || "",
+    image: isCreate ? "" : oldNote.image || "",
   };
 
   /**validation with formik validate*/
@@ -64,21 +62,35 @@ const NoteForm = ({ isCreate }) => {
   //   return errors;
   // };
 
+  const SUPPORTED_FORMATS = ["image/png", "image/jpg", "image/jpeg"];
+
   /**validation with formik validation schema*/
   const NoteFormSchema = Yup.object({
-    title: Yup.string()
-      .min(3, "Title is too short!")
-      .max(100, "Title is too long!")
-      .required("Title is required."),
-    content: Yup.string()
-      .min(5, "Content is too short!")
-      .required("Content is required."),
+    title: Yup.string().min(3, "Title is too short!").max(100, "Title is too long!").required("Title is required."),
+    content: Yup.string().min(5, "Content is too short!").required("Content is required."),
+    image: Yup.mixed()
+      .nullable()
+      .test("FILE_FORMAT", "File type is not supported.", (value) => !value || SUPPORTED_FORMATS.includes(value.type)),
   });
+
+  /**preview image before upload*/
+  const handleImageChange = (event, setFieldValue) => {
+    const selectedImage = event.target.files[0];
+    if (selectedImage) {
+      setPreviewImg(URL.createObjectURL(selectedImage));
+      setFieldValue("image", selectedImage);
+    }
+  };
+
+  const clearPreviewImg = (setFieldValue) => {
+    setPreviewImg(null);
+    setFieldValue("image", null);
+  };
 
   const submitHandler = async (values) => {
     let API;
     let method;
-  
+
     if (isCreate) {
       API = `${import.meta.env.VITE_API}/create/note`;
       method = "post";
@@ -86,16 +98,19 @@ const NoteForm = ({ isCreate }) => {
       API = `${import.meta.env.VITE_API}/edit/${values.note_id}`;
       method = "put";
     }
-  
+
+    const formData = new FormData();
+    formData.append("title", values.title);
+    formData.append("content", values.content);
+    formData.append("image", values.image);
+    formData.append("note_id", values.note_id);
+
     try {
       const response = await fetch(API, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
+        body: formData,
       });
-  
+
       if (response.ok) {
         setRedirect(true);
         toast.success("Note updated successfully!", {
@@ -133,7 +148,7 @@ const NoteForm = ({ isCreate }) => {
         theme: "light",
       });
     }
-  };  
+  };
 
   if (redirect) {
     return <Navigate to={"/"} />;
@@ -153,12 +168,8 @@ const NoteForm = ({ isCreate }) => {
         pauseOnHover
         theme="light"
       />
-      {/* Same as */}
-      <ToastContainer />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold mb-5">
-          {isCreate ? "Create" : "Edit"}
-        </h1>
+        <h1 className="text-2xl font-bold mb-5">{isCreate ? "Create" : "Edit"}</h1>
         <Link to={"/"}>
           <ArrowLeftIcon width={22} />
         </Link>
@@ -169,8 +180,8 @@ const NoteForm = ({ isCreate }) => {
         onSubmit={submitHandler}
         enableReinitialize={true}
       >
-        {({ errors, touched }) => (
-          <Form>
+        {({ errors, touched, values, setFieldValue }) => (
+          <Form encType="multipart/form-data">
             <div className="mb-3">
               <label htmlFor="title" className="font-medium block">
                 Note Title:
@@ -184,6 +195,7 @@ const NoteForm = ({ isCreate }) => {
               />
               <CustomErrorMessage name="title" />
             </div>
+
             <div className="">
               <label htmlFor="content" className="font-medium block">
                 Content:
@@ -200,6 +212,51 @@ const NoteForm = ({ isCreate }) => {
               <CustomErrorMessage name="content" />
             </div>
             <Field type="text" name="note_id" id="note_id" hidden />
+
+            <div className="mb-3">
+              <div className="flex items-center justify-between">
+                <label htmlFor="image" className="font-medium block">
+                  Cover image
+                  <span className="text-xs font-medium text-yellow-400">*optional</span>
+                </label>
+                {previewImg && (
+                  <p
+                    className="text-base font-medium cursor-pointer text-teal-600"
+                    onClick={() => {
+                      clearPreviewImg(setFieldValue);
+                    }}
+                  >
+                    clear
+                  </p>
+                )}
+              </div>
+              <input
+                type="file"
+                name="image"
+                hidden
+                ref={fileRef}
+                onChange={(e) => {
+                  handleImageChange(e, setFieldValue);
+                }}
+              />
+              <div
+                className="border border-teal-600 flex items-center justify-center text-teal-600 border-dashed h-60 cursor-pointer rounded-lg relative overflow-hidden"
+                onClick={() => {
+                  fileRef.current.click();
+                }}
+              >
+                <ArrowUpTrayIcon width={30} height={30} className="z-20" />
+                {previewImg && (
+                  <img
+                    src={previewImg}
+                    alt={"preview"}
+                    className="w-full absolute top-0 left-0 h-full object-cover opacity-80 z-10"
+                  />
+                )}
+              </div>
+              <CustomErrorMessage name="image" />
+            </div>
+
             <button
               className="bg-teal-500 hover:bg-teal-700 text-white py-3 px-4 font-medium rounded-full transition-all duration-300 ease-in-out"
               type="submit"
