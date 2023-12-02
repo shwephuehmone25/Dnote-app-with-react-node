@@ -50,15 +50,19 @@ const Index = () => {
         </>
       ) : (
         <div className="flex justify-center items-center w-full">
-          <Hearts
-            height="80"
-            width="80"
-            color="#4fa94d"
-            ariaLabel="hearts-loading"
-            wrapperStyle={{}}
-            wrapperClass=""
-            visible={loading}
-          />
+          {loading ? (
+            <Hearts
+              height="80"
+              width="80"
+              color="#4fa94d"
+              ariaLabel="hearts-loading"
+              wrapperStyle={{}}
+              wrapperClass=""
+              visible={loading}
+            />
+          ) : (
+            <p>No posts available</p>
+          )}
         </div>
       )}
       <ToastContainer
