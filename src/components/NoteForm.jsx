@@ -1,18 +1,25 @@
+import { useEffect, useRef, useState } from "react";
+
 import { ArrowLeftIcon, ArrowUpTrayIcon } from "@heroicons/react/24/solid";
 import { Link, Navigate, useParams } from "react-router-dom";
+
 import { Formik, Field, Form } from "formik";
 import * as Yup from "yup";
+
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+// fromik custom error message
 import CustomErrorMessage from "./CustomErrorMessage";
-import { useEffect, useRef, useState } from "react";
 
 const NoteForm = ({ isCreate }) => {
   const [redirect, setRedirect] = useState(false);
   const [oldNote, setOldNote] = useState({});
-  const { id } = useParams();
   const [previewImg, setPreviewImg] = useState(null);
+  const [isUpload, setIsUpload] = useState(false);
   const fileRef = useRef();
+
+  const { id } = useParams();
 
   const getOldNote = async () => {
     try {
@@ -34,6 +41,7 @@ const NoteForm = ({ isCreate }) => {
     }
   }, [isCreate, id]);
 
+  
   /**for create*/
   // const initialValues = {
   //   title: "",
@@ -48,7 +56,7 @@ const NoteForm = ({ isCreate }) => {
     image: isCreate ? "" : oldNote.image || "",
   };
 
-  /**validation with formik validate*/
+   /**validation with formik validate*/
   // const validate = (values) => {
   //   const errors = {};
   //   if (values.title.trim().length < 10) {
@@ -64,13 +72,22 @@ const NoteForm = ({ isCreate }) => {
 
   const SUPPORTED_FORMATS = ["image/png", "image/jpg", "image/jpeg"];
 
-  /**validation with formik validation schema*/
+   /**validation with formik validation schema*/
   const NoteFormSchema = Yup.object({
-    title: Yup.string().min(3, "Title is too short!").max(100, "Title is too long!").required("Title is required."),
-    content: Yup.string().min(5, "Content is too short!").required("Content is required."),
+    title: Yup.string()
+      .min(3, "Title is too short!")
+      .max(30, "Title is too long!")
+      .required("Title is required."),
+    content: Yup.string()
+      .min(5, "Content is too short!")
+      .required("Content is required."),
     image: Yup.mixed()
       .nullable()
-      .test("FILE_FORMAT", "File type is not supported.", (value) => !value || SUPPORTED_FORMATS.includes(value.type)),
+      .test(
+        "FILE_FORMAT",
+        "File type is not support.",
+        (value) => !value || SUPPORTED_FORMATS.includes(value.type)
+      ),
   });
 
   /**preview image before upload*/
@@ -85,6 +102,8 @@ const NoteForm = ({ isCreate }) => {
   const clearPreviewImg = (setFieldValue) => {
     setPreviewImg(null);
     setFieldValue("image", null);
+
+    fileRef.current.value = "";
   };
 
   const submitHandler = async (values) => {
@@ -105,6 +124,11 @@ const NoteForm = ({ isCreate }) => {
     formData.append("image", values.image);
     formData.append("note_id", values.note_id);
 
+    const response = await fetch(API, {
+      method,
+      body: formData,
+    });
+    
     try {
       const response = await fetch(API, {
         method,
@@ -113,7 +137,7 @@ const NoteForm = ({ isCreate }) => {
 
       if (response.ok) {
         setRedirect(true);
-        toast.success("Note updated successfully!", {
+        toast.success("Note is updated successfully!", {
           position: "top-right",
           autoClose: 5000,
           hideProgressBar: false,
@@ -150,7 +174,8 @@ const NoteForm = ({ isCreate }) => {
     }
   };
 
-  if (redirect) {
+  if (redirect) 
+  {
     return <Navigate to={"/"} />;
   }
 
@@ -168,8 +193,12 @@ const NoteForm = ({ isCreate }) => {
         pauseOnHover
         theme="light"
       />
+      {/* Same as */}
+      <ToastContainer />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold mb-5">{isCreate ? "Create" : "Edit"}</h1>
+        <h1 className="text-2xl font-bold mb-5">
+          {isCreate ? "Create" : "Edit"}
+        </h1>
         <Link to={"/"}>
           <ArrowLeftIcon width={22} />
         </Link>
@@ -183,46 +212,44 @@ const NoteForm = ({ isCreate }) => {
         {({ errors, touched, values, setFieldValue }) => (
           <Form encType="multipart/form-data">
             <div className="mb-3">
-              <label htmlFor="title" className="font-medium block">
-                Note Title:
+              <label htmlFor="title" className=" font-medium block">
+              Title:
               </label>
               <Field
                 type="text"
                 name="title"
                 id="title"
-                className="text-lg border-teal-600 border-2 py-1 w-full rounded-lg"
+                className=" text-lg border-2 border-teal-600 py-1 w-full rounded-lg"
                 placeholder="Enter your title"
               />
               <CustomErrorMessage name="title" />
             </div>
 
-            <div className="">
-              <label htmlFor="content" className="font-medium block">
-                Content:
+            <div className="mb-3">
+              <label htmlFor="content" className=" font-medium block" >
+              Content:
               </label>
               <Field
                 as="textarea"
-                type="text"
                 rows={4}
+                type="text"
                 name="content"
                 id="content"
-                className="text-lg border-teal-600 border-2 py-1 w-full rounded-lg"
+                className=" text-lg border-2 border-teal-600 py-1 w-full rounded-lg"
                 placeholder="Enter your content here"
               />
               <CustomErrorMessage name="content" />
             </div>
-            <Field type="text" name="note_id" id="note_id" hidden />
-
             <div className="mb-3">
-              <div className="flex items-center justify-between">
-                <label htmlFor="image" className="font-medium block">
+              <div className=" flex items-center justify-between">
+                <label htmlFor="image" className=" font-medium block">
                   Cover image
-                  <span className="text-xs font-medium text-yellow-400">*optional</span>
+                  <span className=" text-xs font-medium text-yellow-400">*optional</span>
                 </label>
                 {previewImg && (
                   <p
                     className="text-base font-medium cursor-pointer text-teal-600"
-                    onClick={() => {
+                    onClick={(_) => {
                       clearPreviewImg(setFieldValue);
                     }}
                   >
@@ -230,35 +257,69 @@ const NoteForm = ({ isCreate }) => {
                   </p>
                 )}
               </div>
-              <input
-                type="file"
-                name="image"
-                hidden
-                ref={fileRef}
-                onChange={(e) => {
-                  handleImageChange(e, setFieldValue);
-                }}
-              />
-              <div
-                className="border border-teal-600 flex items-center justify-center text-teal-600 border-dashed h-60 cursor-pointer rounded-lg relative overflow-hidden"
-                onClick={() => {
-                  fileRef.current.click();
-                }}
-              >
-                <ArrowUpTrayIcon width={30} height={30} className="z-20" />
-                {previewImg && (
-                  <img
-                    src={previewImg}
-                    alt={"preview"}
-                    className="w-full absolute top-0 left-0 h-full object-cover opacity-80 z-10"
+              {isUpload ? (
+                <p
+                  className="text-base font-medium cursor-pointer text-teal-600"
+                  onClick={(_) => setIsUpload(false)}
+                >
+                  disable cover image
+                </p>
+              ) : (
+                <p
+                  className="text-base font-medium cursor-pointer text-teal-600"
+                  onClick={(_) => setIsUpload(true)}
+                >
+                  upload cover image
+                </p>
+              )}
+              {isUpload && (
+                <>
+                  <input
+                    type="file"
+                    name="image"
+                    hidden
+                    ref={fileRef}
+                    onChange={(e) => {
+                      handleImageChange(e, setFieldValue);
+                    }}
                   />
-                )}
-              </div>
+                  <div
+                    className=" border border-teal-600 flex items-center justify-center text-teal-600 border-dashed h-60 cursor-pointer rounded-lg relative overflow-hidden"
+                    onClick={() => {
+                      fileRef.current.click();
+                    }}
+                  >
+                    <ArrowUpTrayIcon width={30} height={30} className="z-20" />
+                    {isCreate ? (
+                      <>
+                        {previewImg && (
+                          <img
+                            src={previewImg}
+                            alt={"preview"}
+                            className=" w-full absolute top-0 left-0 h-full object-cover opacity-80 z-10"
+                          />
+                        )}
+                      </>
+                    ) : (
+                      <img
+                        src={
+                          previewImg
+                            ? previewImg
+                            : `${import.meta.env.VITE_API}/${
+                                oldNote.image
+                              }`
+                        }
+                        alt={"preview"}
+                        className=" w-full absolute top-0 left-0 h-full object-cover opacity-80 z-10"
+                      />
+                    )}
+                  </div>
+                </>
+              )}
               <CustomErrorMessage name="image" />
             </div>
-
             <button
-              className="bg-teal-500 hover:bg-teal-700 text-white py-3 px-4 font-medium rounded-full transition-all duration-300 ease-in-out"
+              className=" text-white bg-teal-600 py-3 font-medium w-full text-center"
               type="submit"
             >
               {isCreate ? "Save" : "Update"}
