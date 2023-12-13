@@ -2,10 +2,12 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import Main from "./layouts/Main";
 
-import Index from "./pages/Index";
-import Create from "./pages/Create";
-import Edit from "./pages/Edit";
-import Details from "./pages/Details";
+import Index from "./pages/note/Index";
+import Create from "./pages/note/Create";
+import Edit from "./pages/note/Edit";
+import Details from "./pages/note/Details";
+import Register from "./pages/user/Register";
+import Login from "./pages/user/Login";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -28,6 +30,14 @@ const App = () => {
         {
           path: "/note/:id",
           element: <Details />,
+        },
+        {
+          path: "/register",
+          element: <Register />,
+        },
+        {
+          path: "/login",
+          element: <Login />,
         },
       ],
     },

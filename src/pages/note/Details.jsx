@@ -58,10 +58,10 @@ const Details = () => {
             )}
             <h3 className="text-3xl font-medium">{note.title}</h3>
             <div className=" flex gap-4 my-2">
-              {note.createdAt && note.author && (
+              {note.createdAt && note.AuthFormor && (
                 <>
                   <p className=" flex items-center gap-1 font-medium text-sm text-gray-600">
-                    <UserIcon className=" w-4 h-4" /> {note.author.username}
+                    <UserIcon className=" w-4 h-4" /> {note.AuthFormor.username}
                   </p>
                   <p className=" flex items-center gap-1 font-medium text-sm text-gray-600">
                     <CalendarDaysIcon className=" w-4 h-4" />

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Note from "../components/Note";
+import Note from "../../components/Note";
 import { ColorRing } from "react-loader-spinner";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
