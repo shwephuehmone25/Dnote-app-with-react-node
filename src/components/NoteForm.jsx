@@ -109,7 +109,7 @@ const NoteForm = ({ isCreate }) => {
   const submitHandler = async (values) => {
     let API;
     let method;
-
+  
     if (isCreate) {
       API = `${import.meta.env.VITE_API}/create/note`;
       method = "post";
@@ -117,24 +117,19 @@ const NoteForm = ({ isCreate }) => {
       API = `${import.meta.env.VITE_API}/edit/${values.note_id}`;
       method = "put";
     }
-
+  
     const formData = new FormData();
     formData.append("title", values.title);
     formData.append("content", values.content);
     formData.append("image", values.image);
     formData.append("note_id", values.note_id);
-
-    const response = await fetch(API, {
-      method,
-      body: formData,
-    });
-    
+  
     try {
       const response = await fetch(API, {
         method,
         body: formData,
       });
-
+  
       if (response.ok) {
         setRedirect(true);
         toast.success("Note is updated successfully!", {
@@ -173,6 +168,7 @@ const NoteForm = ({ isCreate }) => {
       });
     }
   };
+  
 
   if (redirect) 
   {
