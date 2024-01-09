@@ -6,8 +6,11 @@ import {
 import { Link } from "react-router-dom";
 // import formatISO9075 from "date-fns/formatISO9075";
 import { format } from "date-fns";
+import { useContext } from "react";
+import { UserContext } from "../contexts/UserContext";
 
 const Note = ({ note, getAllNotes, customAlert  }) => {
+  const { token } = useContext(UserContext);
   const { _id, title, content, createdAt } = note;
 
   const formattedDate = format(new Date(createdAt), "yyyy-MMM-dd");
@@ -16,6 +19,9 @@ const Note = ({ note, getAllNotes, customAlert  }) => {
 
     const response = await fetch(`${import.meta.env.VITE_API}/delete/note/${_id}`, {
       method: "delete",
+      headers: {
+        Authorization: `Bearer ${token.token}`,
+      },
     });
     if (response.status === 204) {
       customAlert("Post is deleted successfully.");

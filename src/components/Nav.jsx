@@ -1,10 +1,35 @@
 // eslint-disable-next-line no-unused-vars
-import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import { useContext} from "react";
+import { Link} from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 
 const Nav = () => {
-  const { token } = useContext(UserContext);
+  const { token, updateToken } = useContext(UserContext);
+
+  // const [redirect, setRedirect] = useState(false);
+  // const isLogin = async () => {
+  //   const response = await fetch(`${import.meta.env.VITE_API}/status`,{
+  //     headers: {
+  //       Authorization: `Bearer ${token.token}`,
+  //     },
+  //   });
+  //   if(response.status === 401)
+  //   {
+  //   setRedirect(true)
+  //   }
+  // };
+
+  const logoutHandler = () => {
+    updateToken(null);
+  };
+
+  // useEffect((_) => {
+  //   isLogin();
+  // });
+  // if(redirect)
+  // {
+  //   return <Navigate to ={"/login"} />
+  // }
 
   return (
     <nav className="bg-white border-gray-200 dark:bg-gray-900">
@@ -58,15 +83,19 @@ const Nav = () => {
               </Link>
             </li>
             <>
-              {token ? (
-                <li>
-                  <Link
-                    to={"/create"}
-                    className="font-medium block py-2 px-3 text-teal-600 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-teal-700 md:p-0 dark:text-white md:dark:hover:text-teal-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
-                  >
-                    Create
-                  </Link>
-                </li>
+            {token ? (
+          <>
+            <Link to={"/create/note"} className=" text-teal-600 font-medium">
+              Create
+            </Link>
+            <button
+              type="button"
+              className=" text-teal-600 font-medium"
+              onClick={logoutHandler}
+            >
+              Logout
+            </button>
+          </>
               ) : (
                 <>
                   <li>

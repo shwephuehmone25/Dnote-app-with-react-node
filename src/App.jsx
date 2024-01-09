@@ -8,6 +8,7 @@ import Edit from "./pages/note/Edit";
 import Details from "./pages/note/Details";
 import Register from "./pages/user/Register";
 import Login from "./pages/user/Login";
+import isLoginLoader from "./utils/isLogin";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -22,10 +23,12 @@ const App = () => {
         {
           path: "/create/note",
           element: <Create />,
+          loader: isLoginLoader,
         },
         {
           path: "/edit/note/:id",
           element: <Edit />,
+          loader: isLoginLoader,
         },
         {
           path: "/note/:id",

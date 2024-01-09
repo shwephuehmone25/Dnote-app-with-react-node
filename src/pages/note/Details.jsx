@@ -5,11 +5,11 @@ import { format } from "date-fns";
 import { Hearts } from "react-loader-spinner";
 
 const Details = () => {
-  const {id} = useParams();
+  const { id } = useParams();
   // console.log(params.id)
-  
+
   const [note, setNote] = useState([]);
-  const [loading, setLoading ] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const getNote = async () => {
     setLoading(true);
@@ -49,7 +49,7 @@ const Details = () => {
             </Link>
           </div>
           <div className="border-t-4 border-t-teal-600 shadow-lg p-3 mt-4">
-          {note.image && (
+            {note.image && (
               <img
                 src={`${import.meta.env.VITE_API}/${note.image}`}
                 alt={note.title}
@@ -58,13 +58,13 @@ const Details = () => {
             )}
             <h3 className="text-3xl font-medium">{note.title}</h3>
             <div className=" flex gap-4 my-2">
-              {note.createdAt && note.AuthFormor && (
+              {note.createdAt && note.author && (
                 <>
-                  <p className=" flex items-center gap-1 font-medium text-sm text-gray-600">
-                    <UserIcon className=" w-4 h-4" /> {note.AuthFormor.username}
+                  <p className="flex items-center gap-1 font-medium text-sm text-gray-600">
+                    <UserIcon className="w-4 h-4" /> {note.author.username}
                   </p>
-                  <p className=" flex items-center gap-1 font-medium text-sm text-gray-600">
-                    <CalendarDaysIcon className=" w-4 h-4" />
+                  <p className="flex items-center gap-1 font-medium text-sm text-gray-600">
+                    <CalendarDaysIcon className="w-4 h-4" />
                     {format(new Date(note.createdAt), "yyyy-MMM-dd")}
                   </p>
                 </>
