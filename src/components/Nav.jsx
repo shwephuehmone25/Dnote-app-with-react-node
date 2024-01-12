@@ -128,6 +128,11 @@ const Nav = () => {
           </ul>
         </div>
       </div>
+      {token && token.user_mail && (
+        <p className=" text-right text-sm text-teal-600">
+          <span className=" font-semibold">Login as</span> {token.user_mail}
+        </p>
+      )}
     </nav>
   );
 };
