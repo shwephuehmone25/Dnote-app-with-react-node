@@ -34,27 +34,30 @@ const Note = ({ note, getAllNotes, customAlert }) => {
   };
 
   return (
-    <div className="w-2/5 border-t-4 border-t-teal-600 shadow-lg p-3">
+    <div className=" w-2/5 border-t-4 border-t-teal-600 shadow-lg p-3 h-fit">
       <h3 className="text-xl font-medium">{title}</h3>
       <p className="text-sm">{content.slice(0, 120)}</p>
-      <div className="flex items-center justify-between mt-2 border-t pt-2">
+      <div className=" flex items-center justify-between mt-2 border-t pt-2">
         <p className="text-sm font-medium">{formattedDate}</p>
         <div className="flex items-center justify-end gap-2">
-          {note.author && note.author.toString() === token.userId ? (
+          {token && (
             <>
-              <TrashIcon
-                width={20}
-                className=" text-red-600 cursor-pointer"
-                onClick={deleteNote}
-              />
-              <Link to={"/edit/" + _id}>
-                <PencilSquareIcon width={20} className="text-teal-600" />
-              </Link>
+              {note.author.toString() === token.userId ? (
+                <>
+                  <TrashIcon
+                    width={20}
+                    className=" text-red-600 cursor-pointer"
+                    onClick={deleteNote}
+                  />
+                  <Link to={`/edit/note/${_id}`}>
+                    <PencilSquareIcon width={20} className="text-teal-600" />
+                  </Link>
+                </>
+              ) : (
+                <></>
+              )}
             </>
-          ) : (
-            <></>
           )}
-
           <Link to={"/note/" + _id}>
             <EyeIcon width={20} className="text-blue-600" />
           </Link>
